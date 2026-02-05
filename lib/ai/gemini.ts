@@ -147,7 +147,7 @@ function prepareDataForAI(checkIns: DailyCheckIn[]): string {
   
   const medicationTaken = sortedCheckIns.filter(c => c.medication_taken === 'yes').length;
   const medicationPartial = sortedCheckIns.filter(c => c.medication_taken === 'partially').length;
-  const medicationMissed = sortedCheckIns.filter(c => c.medication_taken === 'no').length;
+  const medicationMissed = sortedCheckIns.filter(c => c.medication_taken === 'missed').length;
 
   summary += `\n**Statistical Summary:**\n`;
   summary += `- Average Tremor: ${avgTremor}/10\n`;

@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 
-export default function DashboardNotifier() {
+function DashboardNotifierContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -42,4 +42,12 @@ export default function DashboardNotifier() {
   }, [searchParams, pathname]); // Removed router from deps as we use window.history
 
   return null;
+}
+
+export default function DashboardNotifier() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardNotifierContent />
+    </Suspense>
+  );
 }
