@@ -9,6 +9,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getAllPatients, updateUserProfile, deleteUserProfile } from '@/lib/supabase/admin';
 import type { UserProfile } from '@/lib/supabase/config';
 import { toast } from 'sonner';
+import { Eye } from 'lucide-react';
+import PatientDetailView from './PatientDetailView';
 
 interface PatientsManagementProps {
   onUpdate: () => void;
@@ -20,6 +22,7 @@ export default function PatientsManagement({ onUpdate }: PatientsManagementProps
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingPatient, setEditingPatient] = useState<UserProfile | null>(null);
+  const [viewingPatient, setViewingPatient] = useState<UserProfile | null>(null);
   const [editForm, setEditForm] = useState({ full_name: '', email: '', phone: '' });
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -103,6 +106,16 @@ export default function PatientsManagement({ onUpdate }: PatientsManagementProps
     return <div className="text-center py-8">Loading patients...</div>;
   }
 
+  // Show patient detail view when a patient is selected
+  if (viewingPatient) {
+    return (
+      <PatientDetailView
+        patient={viewingPatient}
+        onBack={() => setViewingPatient(null)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -184,6 +197,15 @@ export default function PatientsManagement({ onUpdate }: PatientsManagementProps
                           </p>
                         </div>
                         <div className="flex gap-2">
+                          <Button
+                            onClick={() => setViewingPatient(patient)}
+                            variant="default"
+                            size="sm"
+                            className="gap-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </Button>
                           <Button onClick={() => handleEdit(patient)} variant="outline" size="sm">
                             Edit
                           </Button>

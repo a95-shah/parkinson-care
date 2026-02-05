@@ -303,3 +303,220 @@ export async function getCaretakerAssignments(caretakerId: string): Promise<{
     };
   }
 }
+
+// =====================================================
+// Admin Patient Check-ins Management Functions
+// =====================================================
+
+export interface PatientCheckIn {
+  id: string;
+  user_id: string;
+  check_in_date: string;
+  tremor_score: number;
+  stiffness_score: number;
+  balance_score: number;
+  sleep_score: number;
+  mood_score: number;
+  medication_taken: 'yes' | 'missed' | 'partially';
+  side_effects: string[];
+  side_effects_other?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PatientDetailStats {
+  totalCheckIns: number;
+  missedDays: number;
+  medicationAdherence: number;
+  avgTremor: number;
+  avgStiffness: number;
+  avgBalance: number;
+  avgSleep: number;
+  avgMood: number;
+  mostCommonSideEffects: string[];
+  lastCheckInDate: string | null;
+  daysSinceRegistration: number;
+}
+
+// Get all check-ins for a specific patient
+export async function getPatientCheckIns(
+  patientId: string,
+  days?: number
+): Promise<{
+  checkIns: PatientCheckIn[];
+  error?: string;
+}> {
+  try {
+    const supabase = createClient();
+
+    let query = supabase
+      .from('daily_checkins')
+      .select('*')
+      .eq('user_id', patientId)
+      .order('check_in_date', { ascending: false });
+
+    if (days) {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+      query = query.gte('check_in_date', startDate.toISOString().split('T')[0]);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    return { checkIns: data || [] };
+  } catch (error) {
+    console.error('Error fetching patient check-ins:', error);
+    return {
+      checkIns: [],
+      error: error instanceof Error ? error.message : 'Failed to fetch check-ins',
+    };
+  }
+}
+
+// Update a specific check-in (admin only)
+export async function updatePatientCheckIn(
+  checkInId: string,
+  updates: Partial<Omit<PatientCheckIn, 'id' | 'user_id' | 'created_at' | 'updated_at'>>
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from('daily_checkins')
+      .update(updates)
+      .eq('id', checkInId);
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating check-in:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to update check-in',
+    };
+  }
+}
+
+// Delete a specific check-in (admin only)
+export async function deletePatientCheckIn(checkInId: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from('daily_checkins')
+      .delete()
+      .eq('id', checkInId);
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting check-in:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to delete check-in',
+    };
+  }
+}
+
+// Calculate patient statistics including missed days
+export async function getPatientStats(
+  patientId: string,
+  patient: UserProfile
+): Promise<{
+  stats: PatientDetailStats | null;
+  error?: string;
+}> {
+  try {
+    const supabase = createClient();
+
+    // Get all check-ins for the patient
+    const { data: checkIns, error } = await supabase
+      .from('daily_checkins')
+      .select('*')
+      .eq('user_id', patientId)
+      .order('check_in_date', { ascending: true });
+
+    if (error) throw error;
+
+    const daysSinceRegistration = Math.floor(
+      (new Date().getTime() - new Date(patient.created_at).getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (!checkIns || checkIns.length === 0) {
+      return {
+        stats: {
+          totalCheckIns: 0,
+          missedDays: daysSinceRegistration,
+          medicationAdherence: 0,
+          avgTremor: 0,
+          avgStiffness: 0,
+          avgBalance: 0,
+          avgSleep: 0,
+          avgMood: 0,
+          mostCommonSideEffects: [],
+          lastCheckInDate: null,
+          daysSinceRegistration,
+        },
+      };
+    }
+
+    // Calculate statistics
+    const totalCheckIns = checkIns.length;
+    const missedDays = Math.max(0, daysSinceRegistration - totalCheckIns);
+
+    // Calculate medication adherence
+    const medicationYes = checkIns.filter(c => c.medication_taken === 'yes').length;
+    const medicationAdherence = Math.round((medicationYes / totalCheckIns) * 100);
+
+    // Calculate averages
+    const avgTremor = Number((checkIns.reduce((sum, c) => sum + c.tremor_score, 0) / totalCheckIns).toFixed(1));
+    const avgStiffness = Number((checkIns.reduce((sum, c) => sum + c.stiffness_score, 0) / totalCheckIns).toFixed(1));
+    const avgBalance = Number((checkIns.reduce((sum, c) => sum + c.balance_score, 0) / totalCheckIns).toFixed(1));
+    const avgSleep = Number((checkIns.reduce((sum, c) => sum + c.sleep_score, 0) / totalCheckIns).toFixed(1));
+    const avgMood = Number((checkIns.reduce((sum, c) => sum + c.mood_score, 0) / totalCheckIns).toFixed(1));
+
+    // Find most common side effects
+    const sideEffectCounts: Record<string, number> = {};
+    checkIns.forEach(c => {
+      if (c.side_effects && Array.isArray(c.side_effects)) {
+        c.side_effects.forEach((effect: string) => {
+          sideEffectCounts[effect] = (sideEffectCounts[effect] || 0) + 1;
+        });
+      }
+    });
+    const mostCommonSideEffects = Object.entries(sideEffectCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([effect]) => effect);
+
+    const lastCheckInDate = checkIns[checkIns.length - 1]?.check_in_date || null;
+
+    return {
+      stats: {
+        totalCheckIns,
+        missedDays,
+        medicationAdherence,
+        avgTremor,
+        avgStiffness,
+        avgBalance,
+        avgSleep,
+        avgMood,
+        mostCommonSideEffects,
+        lastCheckInDate,
+        daysSinceRegistration,
+      },
+    };
+  } catch (error) {
+    console.error('Error calculating patient stats:', error);
+    return {
+      stats: null,
+      error: error instanceof Error ? error.message : 'Failed to calculate statistics',
+    };
+  }
+}
