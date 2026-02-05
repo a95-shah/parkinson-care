@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { UserProfile } from "@/lib/supabase/config";
 import { InviteCaretakerDialog } from '@/components/InviteCaretakerDialog';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface AdminHeaderProps {
   profile: UserProfile;
@@ -35,6 +36,7 @@ export function AdminHeader({ profile, title, refreshing, onRefresh }: AdminHead
               <span className="sr-only">Refresh</span>
             </Button>
           )}
+          <ThemeToggle />
           <InviteCaretakerDialog role="admin" />
         </div>
         
