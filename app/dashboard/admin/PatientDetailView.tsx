@@ -139,10 +139,10 @@ export default function PatientDetailView({ patient, onBack }: PatientDetailView
 
   const getMedicationColor = (taken: string) => {
     switch (taken) {
-      case 'yes': return 'bg-green-100 text-green-800';
-      case 'missed': return 'bg-red-100 text-red-800';
-      case 'partially': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'yes': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      case 'missed': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+      case 'partially': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-slate-800 dark:text-gray-300';
     }
   };
 
@@ -161,7 +161,7 @@ export default function PatientDetailView({ patient, onBack }: PatientDetailView
       </div>
 
       {/* Patient Profile Card */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 dark:from-blue-950/40 dark:to-indigo-950/40 dark:border-blue-800/50">
         <CardHeader>
           <CardTitle className="flex items-center gap-3 text-2xl">
             <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
@@ -191,57 +191,57 @@ export default function PatientDetailView({ patient, onBack }: PatientDetailView
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 dark:from-green-950/40 dark:to-emerald-950/40 dark:border-green-800/50">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                  <Calendar className="h-5 w-5 text-green-600" />
+                <div className="h-10 w-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-green-700">{stats.totalCheckIns}</p>
-                  <p className="text-sm text-green-600">Total Check-ins</p>
+                  <p className="text-2xl font-bold text-green-700 dark:text-green-400">{stats.totalCheckIns}</p>
+                  <p className="text-sm text-green-600 dark:text-green-500">Total Check-ins</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-red-50 to-rose-50 border-red-200">
+          <Card className="bg-gradient-to-br from-red-50 to-rose-50 border-red-200 dark:from-red-950/40 dark:to-rose-950/40 dark:border-red-800/50">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center">
-                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                <div className="h-10 w-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                  <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-red-700">{stats.missedDays}</p>
-                  <p className="text-sm text-red-600">Missed Days</p>
+                  <p className="text-2xl font-bold text-red-700 dark:text-red-400">{stats.missedDays}</p>
+                  <p className="text-sm text-red-600 dark:text-red-500">Missed Days</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+          <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 dark:from-blue-950/40 dark:to-cyan-950/40 dark:border-blue-800/50">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <Pill className="h-5 w-5 text-blue-600" />
+                <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <Pill className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-blue-700">{stats.medicationAdherence}%</p>
-                  <p className="text-sm text-blue-600">Medication Adherence</p>
+                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">{stats.medicationAdherence}%</p>
+                  <p className="text-sm text-blue-600 dark:text-blue-500">Medication Adherence</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+          <Card className="bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200 dark:from-purple-950/40 dark:to-violet-950/40 dark:border-purple-800/50">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-purple-600" />
+                <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-purple-700">{stats.daysSinceRegistration}</p>
-                  <p className="text-sm text-purple-600">Days Since Joined</p>
+                  <p className="text-2xl font-bold text-purple-700 dark:text-purple-400">{stats.daysSinceRegistration}</p>
+                  <p className="text-sm text-purple-600 dark:text-purple-500">Days Since Joined</p>
                 </div>
               </div>
             </CardContent>
@@ -251,30 +251,30 @@ export default function PatientDetailView({ patient, onBack }: PatientDetailView
 
       {/* Average Scores */}
       {stats && stats.totalCheckIns > 0 && (
-        <Card>
+        <Card className="dark:bg-card dark:border-slate-800">
           <CardHeader>
             <CardTitle>Average Symptom Scores</CardTitle>
             <CardDescription>Based on {stats.totalCheckIns} check-ins</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="text-center p-3 bg-slate-50 rounded-lg">
+              <div className="text-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                 <p className="text-2xl font-bold">{stats.avgTremor}</p>
                 <p className="text-sm text-muted-foreground">Tremor</p>
               </div>
-              <div className="text-center p-3 bg-slate-50 rounded-lg">
+              <div className="text-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                 <p className="text-2xl font-bold">{stats.avgStiffness}</p>
                 <p className="text-sm text-muted-foreground">Stiffness</p>
               </div>
-              <div className="text-center p-3 bg-slate-50 rounded-lg">
+              <div className="text-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                 <p className="text-2xl font-bold">{stats.avgBalance}</p>
                 <p className="text-sm text-muted-foreground">Balance</p>
               </div>
-              <div className="text-center p-3 bg-slate-50 rounded-lg">
+              <div className="text-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                 <p className="text-2xl font-bold">{stats.avgSleep}</p>
                 <p className="text-sm text-muted-foreground">Sleep</p>
               </div>
-              <div className="text-center p-3 bg-slate-50 rounded-lg">
+              <div className="text-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                 <p className="text-2xl font-bold">{stats.avgMood}</p>
                 <p className="text-sm text-muted-foreground">Mood</p>
               </div>
@@ -285,7 +285,7 @@ export default function PatientDetailView({ patient, onBack }: PatientDetailView
 
       {/* Common Side Effects */}
       {stats && stats.mostCommonSideEffects.length > 0 && (
-        <Card>
+        <Card className="dark:bg-card dark:border-slate-800">
           <CardHeader>
             <CardTitle>Most Common Side Effects</CardTitle>
           </CardHeader>
@@ -294,7 +294,7 @@ export default function PatientDetailView({ patient, onBack }: PatientDetailView
               {stats.mostCommonSideEffects.map((effect) => (
                 <span
                   key={effect}
-                  className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium"
+                  className="px-3 py-1 bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 rounded-full text-sm font-medium"
                 >
                   {effect}
                 </span>
@@ -305,7 +305,7 @@ export default function PatientDetailView({ patient, onBack }: PatientDetailView
       )}
 
       {/* Check-ins History */}
-      <Card>
+      <Card className="dark:bg-card dark:border-slate-800">
         <CardHeader>
           <CardTitle>Check-ins History</CardTitle>
           <CardDescription>All daily check-ins for this patient</CardDescription>
@@ -316,7 +316,7 @@ export default function PatientDetailView({ patient, onBack }: PatientDetailView
           ) : (
             <div className="space-y-3">
               {checkIns.map((checkIn) => (
-                <div key={checkIn.id} className="border rounded-lg p-4">
+                <div key={checkIn.id} className="border rounded-lg p-4 dark:border-slate-800">
                   {editingCheckIn?.id === checkIn.id ? (
                     /* Edit Form */
                     <div className="space-y-4">
@@ -444,19 +444,19 @@ export default function PatientDetailView({ patient, onBack }: PatientDetailView
 
                         {/* Scores */}
                         <div className="flex flex-wrap gap-3 text-sm mb-2">
-                          <span className="bg-slate-100 px-2 py-1 rounded">
+                          <span className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
                             Tremor: <strong>{checkIn.tremor_score}</strong>
                           </span>
-                          <span className="bg-slate-100 px-2 py-1 rounded">
+                          <span className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
                             Stiffness: <strong>{checkIn.stiffness_score}</strong>
                           </span>
-                          <span className="bg-slate-100 px-2 py-1 rounded">
+                          <span className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
                             Balance: <strong>{checkIn.balance_score}</strong>
                           </span>
-                          <span className="bg-slate-100 px-2 py-1 rounded">
+                          <span className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
                             Sleep: <strong>{checkIn.sleep_score}</strong>
                           </span>
-                          <span className="bg-slate-100 px-2 py-1 rounded">
+                          <span className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
                             Mood: <strong>{checkIn.mood_score}</strong>
                           </span>
                         </div>
@@ -468,7 +468,7 @@ export default function PatientDetailView({ patient, onBack }: PatientDetailView
                             {checkIn.side_effects.map((effect) => (
                               <span
                                 key={effect}
-                                className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs"
+                                className="px-2 py-0.5 bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 rounded text-xs"
                               >
                                 {effect}
                               </span>

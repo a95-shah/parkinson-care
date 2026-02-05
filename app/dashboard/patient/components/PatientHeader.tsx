@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { InviteCaretakerDialog } from '@/components/InviteCaretakerDialog';
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface PatientHeaderProps {
   userName: string;
@@ -48,6 +49,7 @@ export function PatientHeader({ userName, title, refreshing, onRefresh }: Patien
               <span className="sr-only">Refresh</span>
             </Button>
           )}
+          <ThemeToggle />
           <InviteCaretakerDialog role="patient" />
         </div>
         

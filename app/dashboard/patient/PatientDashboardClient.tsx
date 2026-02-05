@@ -136,29 +136,29 @@ export default function PatientDashboardClient({ userName }: PatientDashboardCli
                 {/* Check-in Status Card */}
                 <Card className={`relative overflow-hidden transition-all duration-300 ${
                   todayCheckIn 
-                    ? 'border-green-200 bg-gradient-to-br from-green-50 to-emerald-50' 
-                    : 'border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50'
+                    ? 'border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 dark:border-green-800/50 dark:from-green-950/20 dark:to-emerald-950/20' 
+                    : 'border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 dark:border-amber-800/50 dark:from-amber-950/20 dark:to-orange-950/20'
                 }`}>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className={`p-3 rounded-xl ${
-                          todayCheckIn ? 'bg-green-100' : 'bg-amber-100'
+                          todayCheckIn ? 'bg-green-100 dark:bg-green-900/30' : 'bg-amber-100 dark:bg-amber-900/30'
                         }`}>
                           {todayCheckIn ? (
-                            <CheckCircle2 className="h-8 w-8 text-green-600" />
+                            <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
                           ) : (
-                            <AlertCircle className="h-8 w-8 text-amber-600" />
+                            <AlertCircle className="h-8 w-8 text-amber-600 dark:text-amber-400" />
                           )}
                         </div>
                         <div>
                           <h3 className={`text-lg font-semibold ${
-                            todayCheckIn ? 'text-green-900' : 'text-amber-900'
+                            todayCheckIn ? 'text-green-900 dark:text-green-400' : 'text-amber-900 dark:text-amber-400'
                           }`}>
                             {todayCheckIn ? "Today's Check-in Complete" : "Daily Check-in Pending"}
                           </h3>
                           <p className={`text-sm ${
-                            todayCheckIn ? 'text-green-700' : 'text-amber-700'
+                            todayCheckIn ? 'text-green-700 dark:text-green-300' : 'text-amber-700 dark:text-amber-300'
                           }`}>
                             {todayCheckIn 
                               ? `Logged at ${new Date(todayCheckIn.created_at!).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
