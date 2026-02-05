@@ -31,6 +31,7 @@ import {
   Phone,
   Clock,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface PatientDetailViewProps {
   patient: UserProfile;
@@ -146,11 +147,7 @@ export default function PatientDetailView({ patient, onBack }: PatientDetailView
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <LoadingSpinner className="py-16" />;
   }
 
   return (

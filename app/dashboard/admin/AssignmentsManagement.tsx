@@ -16,6 +16,7 @@ import {
 } from '@/lib/supabase/admin';
 import type { UserProfile } from '@/lib/supabase/config';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface AssignmentsManagementProps {
   onUpdate: () => void;
@@ -108,7 +109,7 @@ export default function AssignmentsManagement({ onUpdate }: AssignmentsManagemen
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading assignments...</div>;
+    return <LoadingSpinner text="Loading assignments..." />;
   }
 
   return (

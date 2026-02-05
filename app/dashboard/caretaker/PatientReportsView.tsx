@@ -7,6 +7,8 @@ import { getRecentCheckIns, type DailyCheckIn } from '@/lib/supabase/checkins';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { PatientCaretakerAssignment } from '@/lib/supabase/admin';
 import DailyCheckInForm from '../patient/DailyCheckInForm';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { FileText } from 'lucide-react';
 
 interface PatientReportsViewProps {
   assignment: PatientCaretakerAssignment;
@@ -63,7 +65,7 @@ export default function PatientReportsView({ assignment }: PatientReportsViewPro
   const stats = calculateStats();
 
   if (loading) {
-    return <div className="text-center py-8">Loading patient data...</div>;
+    return <LoadingSpinner text="Loading patient data..." />;
   }
 
   if (showCheckInForm) {
@@ -95,53 +97,68 @@ export default function PatientReportsView({ assignment }: PatientReportsViewPro
   return (
     <div className="space-y-6">
       {/* Patient Info Card */}
-      <Card className="border-blue-200 bg-blue-50">
+      <Card className="border-0 shadow-md bg-gradient-to-r from-blue-50 via-indigo-50 to-white">
         <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center border-2 border-blue-100">
+              <span className="text-2xl font-bold text-blue-700">{assignment.patient_name[0]?.toUpperCase()}</span>
             </div>
             <div>
-              <CardTitle className="text-blue-900">{assignment.patient_name}</CardTitle>
-              <CardDescription className="text-blue-700">{assignment.patient_email}</CardDescription>
+              <CardTitle className="text-2xl text-blue-900">{assignment.patient_name}</CardTitle>
+              <CardDescription className="text-blue-700 font-medium">{assignment.patient_email}</CardDescription>
+              <div className="flex gap-2 mt-2">
+                <span className="text-xs px-2 py-1 rounded-full bg-white/60 border border-blue-200 text-blue-700 font-medium">
+                  Patient
+                </span>
+                <span className="text-xs px-2 py-1 rounded-full bg-white/60 border border-green-200 text-green-700 font-medium">
+                  Active
+                </span>
+              </div>
             </div>
           </div>
         </CardHeader>
       </Card>
 
-      {/* Time Range Selector */}
-      <div className="flex gap-2">
-        <Button
-          variant={days === 7 ? 'default' : 'outline'}
-          onClick={() => setDays(7)}
-          size="sm"
-        >
-          Last 7 Days
-        </Button>
-        <Button
-          variant={days === 30 ? 'default' : 'outline'}
-          onClick={() => setDays(30)}
-          size="sm"
-        >
-          Last 30 Days
-        </Button>
-        <Button
-          variant={days === 90 ? 'default' : 'outline'}
-          onClick={() => setDays(90)}
-          size="sm"
-        >
-          Last 90 Days
-        </Button>
+      {/* Control Bar: Time Range & Actions */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border shadow-sm">
+        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+          <span className="text-sm font-medium text-muted-foreground mr-2">Time Range:</span>
+          {[7, 30, 90].map((d) => (
+            <Button
+              key={d}
+              variant={days === d ? 'default' : 'outline'}
+              onClick={() => setDays(d as 7 | 30 | 90)}
+              size="sm"
+              className={days === d ? "bg-blue-600 hover:bg-blue-700" : ""}
+            >
+              Last {d} Days
+            </Button>
+          ))}
+        </div>
+        
+        <div className="flex gap-2 w-full sm:w-auto">
+           {/* Log on Behalf Button */}
+           {assignment.can_log_on_behalf && (
+            <Button onClick={() => setShowCheckInForm(true)} className="flex-1 sm:flex-none">
+              <span className="mr-2">+</span> Log Check-in
+            </Button>
+          )}
+          {assignment.can_generate_reports && checkIns.length > 0 && (
+            <Button onClick={() => window.print()} variant="outline" className="flex-1 sm:flex-none border-blue-200 text-blue-700 hover:bg-blue-50">
+               🖨️ Print Report
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Permission Check for Data View */}
       {!assignment.can_view_data ? (
-        <Alert className="bg-yellow-50 border-yellow-200">
-          <AlertTitle className="text-yellow-800">Access Restricted</AlertTitle>
-          <AlertDescription className="text-yellow-700">
-            {assignment.patient_name} has not granted permission to view their health data and stats.
+        <Alert className="bg-amber-50 border-amber-200">
+          <AlertTitle className="text-amber-800 font-semibold flex items-center gap-2">
+            🔒 Access Restricted
+          </AlertTitle>
+          <AlertDescription className="text-amber-700 mt-1">
+            {assignment.patient_name} has not granted permission to view their detailed health data.
           </AlertDescription>
         </Alert>
       ) : (
@@ -149,172 +166,118 @@ export default function PatientReportsView({ assignment }: PatientReportsViewPro
           {/* Statistics Summary */}
           {stats && (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardDescription>Average Tremor</CardDescription>
-                  <CardTitle className="text-3xl">{stats.avgTremor}/10</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-muted-foreground">Last {days} days</p>
-                </CardContent>
-              </Card>
+              {[
+                { label: 'Avg Tremor', value: stats.avgTremor, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100' },
+                { label: 'Avg Stiffness', value: stats.avgStiffness, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' },
+                { label: 'Avg Balance', value: stats.avgBalance, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-100' },
+                { label: 'Avg Sleep', value: stats.avgSleep, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+                { label: 'Avg Mood', value: stats.avgMood, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100' },
+              ].map((stat) => (
+                <Card key={stat.label} className={`border ${stat.border} shadow-sm hover:shadow-md transition-shadow`}>
+                  <CardHeader className={`pb-2 ${stat.bg} rounded-t-xl border-b ${stat.border}`}>
+                    <CardDescription className="font-medium text-gray-600">{stat.label}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <div className={`text-3xl font-bold ${stat.color}`}>{stat.value}<span className="text-lg text-muted-foreground font-normal">/10</span></div>
+                    <p className="text-xs text-muted-foreground mt-1">Average over last {days} days</p>
+                  </CardContent>
+                </Card>
+              ))}
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardDescription>Average Stiffness</CardDescription>
-                  <CardTitle className="text-3xl">{stats.avgStiffness}/10</CardTitle>
+              <Card className="border-green-200 shadow-sm bg-gradient-to-br from-green-50 to-white">
+                <CardHeader className="pb-2 border-b border-green-100">
+                  <CardDescription className="text-green-800 font-medium">Medication Adherence</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-muted-foreground">Last {days} days</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardDescription>Average Balance</CardDescription>
-                  <CardTitle className="text-3xl">{stats.avgBalance}/10</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-muted-foreground">Last {days} days</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardDescription>Average Sleep Quality</CardDescription>
-                  <CardTitle className="text-3xl">{stats.avgSleep}/10</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-muted-foreground">Last {days} days</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardDescription>Average Mood</CardDescription>
-                  <CardTitle className="text-3xl">{stats.avgMood}/10</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-muted-foreground">Last {days} days</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-green-200 bg-green-50">
-                <CardHeader className="pb-2">
-                  <CardDescription className="text-green-700">Medication Adherence</CardDescription>
-                  <CardTitle className="text-3xl text-green-900">{stats.adherence}%</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-green-600">
-                    {stats.medicationTaken} taken, {stats.medicationMissed} missed
-                  </p>
+                <CardContent className="pt-4">
+                  <div className="text-3xl font-bold text-green-700">{stats.adherence}%</div>
+                  <div className="flex gap-2 mt-2 text-xs">
+                    <span className="px-2 py-0.5 bg-green-200 text-green-800 rounded-full">{stats.medicationTaken} taken</span>
+                    <span className="px-2 py-0.5 bg-red-100 text-red-800 rounded-full">{stats.medicationMissed} missed</span>
+                  </div>
                 </CardContent>
               </Card>
             </div>
           )}
 
           {/* Daily Check-ins List */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Daily Check-ins</CardTitle>
-                <CardDescription>
-                  {checkIns.length === 0 
-                    ? 'No check-ins recorded for this period'
-                    : `${checkIns.length} check-ins in the last ${days} days`}
-                </CardDescription>
-              </div>
-              {/* Log on Behalf Button */}
-              {assignment.can_log_on_behalf && (
-                <Button onClick={() => setShowCheckInForm(true)}>
-                  Log Check-in on Behalf
-                </Button>
-              )}
+          <Card className="border-0 shadow-md">
+            <CardHeader className="border-b bg-gray-50/50">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-gray-500" />
+                Daily Check-ins History
+              </CardTitle>
+              <CardDescription>
+                {checkIns.length === 0 
+                  ? 'No check-ins recorded for this period'
+                  : `Showing ${checkIns.length} check-ins from the last ${days} days`}
+              </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               {checkIns.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No data available</p>
+                <div className="text-center py-12 text-muted-foreground flex flex-col items-center">
+                  <FileText className="h-12 w-12 opacity-20 mb-3" />
+                  <p>No data available for this time range.</p>
+                </div>
               ) : (
-                <div className="space-y-3">
+                <div className="divide-y">
                   {checkIns.map((checkIn) => (
-                    <Card key={checkIn.id} className="border-gray-200">
-                      <CardContent className="pt-6">
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold">
-                              {new Date(checkIn.check_in_date).toLocaleDateString('en-US', {
-                                weekday: 'long',
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                              })}
-                            </h3>
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                checkIn.medication_taken === 'yes'
-                                  ? 'bg-green-100 text-green-800'
-                                  : checkIn.medication_taken === 'partially'
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : 'bg-red-100 text-red-800'
-                              }`}
-                            >
-                              Medication: {checkIn.medication_taken === 'missed' ? 'missed' : checkIn.medication_taken}
-                            </span>
-                          </div>
-
-                          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
-                            <div>
-                              <p className="text-muted-foreground">Tremor</p>
-                              <p className="font-semibold">{checkIn.tremor_score}/10</p>
-                            </div>
-                            <div>
-                              <p className="text-muted-foreground">Stiffness</p>
-                              <p className="font-semibold">{checkIn.stiffness_score}/10</p>
-                            </div>
-                            <div>
-                              <p className="text-muted-foreground">Balance</p>
-                              <p className="font-semibold">{checkIn.balance_score}/10</p>
-                            </div>
-                            <div>
-                              <p className="text-muted-foreground">Sleep</p>
-                              <p className="font-semibold">{checkIn.sleep_score}/10</p>
-                            </div>
-                            <div>
-                              <p className="text-muted-foreground">Mood</p>
-                              <p className="font-semibold">{checkIn.mood_score}/10</p>
-                            </div>
-                          </div>
-
-                          {checkIn.notes && (
-                            <div className="bg-gray-50 p-3 rounded-md">
-                              <p className="text-xs font-semibold text-gray-700 mb-1">Patient Notes:</p>
-                              <p className="text-sm text-gray-600">{checkIn.notes}</p>
-                            </div>
-                          )}
+                    <div key={checkIn.id} className="p-6 hover:bg-gray-50 transition-colors">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                        <div>
+                          <h4 className="font-semibold text-lg text-gray-800">
+                            {new Date(checkIn.check_in_date).toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })}
+                          </h4>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Logged at {new Date(checkIn.created_at || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </p>
                         </div>
-                      </CardContent>
-                    </Card>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide border ${
+                            checkIn.medication_taken === 'yes'
+                              ? 'bg-green-100 text-green-800 border-green-200'
+                              : checkIn.medication_taken === 'partially'
+                              ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                              : 'bg-red-100 text-red-800 border-red-200'
+                          }`}
+                        >
+                          Meds: {checkIn.medication_taken === 'missed' ? 'missed' : checkIn.medication_taken}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                         {[
+                           { label: 'Tremor', val: checkIn.tremor_score, color: 'text-gray-900' },
+                           { label: 'Stiffness', val: checkIn.stiffness_score, color: 'text-gray-900' },
+                           { label: 'Balance', val: checkIn.balance_score, color: 'text-gray-900' },
+                           { label: 'Sleep', val: checkIn.sleep_score, color: 'text-gray-900' },
+                           { label: 'Mood', val: checkIn.mood_score, color: 'text-gray-900' },
+                         ].map((s) => (
+                           <div key={s.label} className="bg-gray-50/50 p-2 rounded border border-gray-100">
+                             <p className="text-xs text-gray-500 uppercase font-medium">{s.label}</p>
+                             <p className={`font-bold text-lg ${s.color}`}>{s.val}/10</p>
+                           </div>
+                         ))}
+                      </div>
+
+                      {checkIn.notes && (
+                        <div className="mt-4 bg-yellow-50/50 p-3 rounded-lg border border-yellow-100 text-sm text-gray-700 flex gap-2 items-start">
+                          <span className="text-yellow-600 mt-0.5">💬</span>
+                          <div>
+                            <span className="font-semibold text-gray-900">Notes:</span> {checkIn.notes}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
             </CardContent>
           </Card>
-
-          {/* Print Report Button */}
-          {assignment.can_generate_reports && checkIns.length > 0 ? (
-            <Button onClick={() => window.print()} className="w-full" size="lg">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-              Print Report
-            </Button>
-          ) : !assignment.can_generate_reports && (
-            <Alert className="bg-gray-50 border-gray-200">
-              <AlertDescription className="text-gray-500 text-center">
-                Report generation is disabled by the patient.
-              </AlertDescription>
-            </Alert>
-          )}
         </>
       )}
     </div>

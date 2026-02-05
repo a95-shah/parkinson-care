@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { getMyCaretakerAssignment, updateCaretakerPermissions } from '@/lib/supabase/permissions';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export default function PermissionsSettings() {
   const [assignment, setAssignment] = useState<any | null>(null);
@@ -62,7 +63,7 @@ export default function PermissionsSettings() {
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-muted-foreground">Loading permissions...</div>;
+    return <LoadingSpinner text="Loading permissions..." />;
   }
 
   if (!assignment) {

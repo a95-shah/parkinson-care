@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getAllCaretakers, updateUserProfile, deleteUserProfile } from '@/lib/supabase/admin';
 import type { UserProfile } from '@/lib/supabase/config';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface CaretakersManagementProps {
   onUpdate: () => void;
@@ -22,6 +23,8 @@ export default function CaretakersManagement({ onUpdate }: CaretakersManagementP
   const [editingCaretaker, setEditingCaretaker] = useState<UserProfile | null>(null);
   const [editForm, setEditForm] = useState({ full_name: '', email: '', phone: '' });
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 4;
 
   useEffect(() => {
     loadCaretakers();
@@ -35,6 +38,7 @@ export default function CaretakersManagement({ onUpdate }: CaretakersManagementP
           c.email.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredCaretakers(filtered);
+      setCurrentPage(1); // Reset to first page on search
     } else {
       setFilteredCaretakers(caretakers);
     }
@@ -100,7 +104,7 @@ export default function CaretakersManagement({ onUpdate }: CaretakersManagementP
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading caretakers...</div>;
+    return <LoadingSpinner text="Loading caretakers..." />;
   }
 
   return (
@@ -135,7 +139,10 @@ export default function CaretakersManagement({ onUpdate }: CaretakersManagementP
             {filteredCaretakers.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">No caretakers found</p>
             ) : (
-              filteredCaretakers.map((caretaker) => (
+              // Pagination Logic
+              filteredCaretakers
+                .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                .map((caretaker) => (
                 <Card key={caretaker.id} className="border-green-100">
                   <CardContent className="pt-6">
                     {editingCaretaker?.id === caretaker.id ? (
@@ -208,9 +215,45 @@ export default function CaretakersManagement({ onUpdate }: CaretakersManagementP
             )}
           </div>
 
-          <div className="text-sm text-muted-foreground">
-            Showing {filteredCaretakers.length} of {caretakers.length} caretakers
-          </div>
+          {/* Pagination Controls */}
+          {filteredCaretakers.length > ITEMS_PER_PAGE && (
+            <div className="flex items-center justify-between pt-4">
+              <div className="text-sm text-muted-foreground">
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredCaretakers.length)} of {filteredCaretakers.length} caretakers
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1 mx-2">
+                  {Array.from({ length: Math.ceil(filteredCaretakers.length / ITEMS_PER_PAGE) }, (_, i) => i + 1).map((page) => (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "ghost"}
+                      size="sm"
+                      className="w-8 h-8 p-0"
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredCaretakers.length / ITEMS_PER_PAGE)))}
+                  disabled={currentPage >= Math.ceil(filteredCaretakers.length / ITEMS_PER_PAGE)}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

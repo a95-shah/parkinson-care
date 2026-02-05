@@ -11,6 +11,7 @@ import type { UserProfile } from '@/lib/supabase/config';
 import { toast } from 'sonner';
 import { Eye } from 'lucide-react';
 import PatientDetailView from './PatientDetailView';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface PatientsManagementProps {
   onUpdate: () => void;
@@ -25,6 +26,8 @@ export default function PatientsManagement({ onUpdate }: PatientsManagementProps
   const [viewingPatient, setViewingPatient] = useState<UserProfile | null>(null);
   const [editForm, setEditForm] = useState({ full_name: '', email: '', phone: '' });
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 4;
 
   useEffect(() => {
     loadPatients();
@@ -38,6 +41,7 @@ export default function PatientsManagement({ onUpdate }: PatientsManagementProps
           p.email.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredPatients(filtered);
+      setCurrentPage(1); // Reset to first page on search
     } else {
       setFilteredPatients(patients);
     }
@@ -103,7 +107,7 @@ export default function PatientsManagement({ onUpdate }: PatientsManagementProps
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading patients...</div>;
+    return <LoadingSpinner text="Loading patients..." />;
   }
 
   // Show patient detail view when a patient is selected
@@ -148,7 +152,10 @@ export default function PatientsManagement({ onUpdate }: PatientsManagementProps
             {filteredPatients.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">No patients found</p>
             ) : (
-              filteredPatients.map((patient) => (
+              // Pagination Logic
+              filteredPatients
+                .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                .map((patient) => (
                 <Card key={patient.id} className="border-blue-100">
                   <CardContent className="pt-6">
                     {editingPatient?.id === patient.id ? (
@@ -225,9 +232,45 @@ export default function PatientsManagement({ onUpdate }: PatientsManagementProps
             )}
           </div>
 
-          <div className="text-sm text-muted-foreground">
-            Showing {filteredPatients.length} of {patients.length} patients
-          </div>
+          {/* Pagination Controls */}
+          {filteredPatients.length > ITEMS_PER_PAGE && (
+            <div className="flex items-center justify-between pt-4">
+              <div className="text-sm text-muted-foreground">
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredPatients.length)} of {filteredPatients.length} patients
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1 mx-2">
+                  {Array.from({ length: Math.ceil(filteredPatients.length / ITEMS_PER_PAGE) }, (_, i) => i + 1).map((page) => (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "ghost"}
+                      size="sm"
+                      className="w-8 h-8 p-0"
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredPatients.length / ITEMS_PER_PAGE)))}
+                  disabled={currentPage >= Math.ceil(filteredPatients.length / ITEMS_PER_PAGE)}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
