@@ -238,7 +238,7 @@ export default function PatientDashboardClient({ userName }: PatientDashboardCli
 
                 {/* AI Insight Card */}
                 {latestInsight && (
-                  <Card className="relative overflow-hidden border-2 border-purple-200 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
+                  <Card className="relative overflow-hidden border-2 border-purple-200 dark:border-purple-800/50 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 dark:from-purple-950/30 dark:via-indigo-950/30 dark:to-blue-950/30">
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -246,8 +246,8 @@ export default function PatientDashboardClient({ userName }: PatientDashboardCli
                             <Sparkles className="h-5 w-5 text-white" />
                           </div>
                           <div>
-                            <CardTitle className="text-purple-900">AI Health Insights</CardTitle>
-                            <CardDescription className="text-purple-700">
+                            <CardTitle className="text-purple-900 dark:text-purple-100">AI Health Insights</CardTitle>
+                            <CardDescription className="text-purple-700 dark:text-purple-300">
                               Generated {new Date(latestInsight.created_at!).toLocaleDateString('en-US', {
                                 month: 'short',
                                 day: 'numeric'
@@ -259,25 +259,25 @@ export default function PatientDashboardClient({ userName }: PatientDashboardCli
                           variant="ghost" 
                           size="sm" 
                           onClick={() => setActiveTab('trends')}
-                          className="text-purple-700 hover:text-purple-900 hover:bg-purple-100"
+                          className="text-purple-700 hover:text-purple-900 hover:bg-purple-100 dark:text-purple-300 dark:hover:text-purple-100 dark:hover:bg-purple-900/40"
                         >
                           View Full Analysis →
                         </Button>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="bg-white/80 backdrop-blur rounded-xl p-4 space-y-3 shadow-sm">
-                        <p className="text-gray-700 leading-relaxed">{latestInsight.summary}</p>
+                      <div className="bg-white/80 dark:bg-slate-900/60 backdrop-blur rounded-xl p-4 space-y-3 shadow-sm border dark:border-slate-800">
+                        <p className="text-gray-700 dark:text-gray-200 leading-relaxed">{latestInsight.summary}</p>
                         
                         <div className="flex flex-wrap gap-3 pt-2">
                           {latestInsight.key_observations.increases.length > 0 && (
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-100 text-red-700 text-sm">
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 text-sm">
                               <TrendingUp className="h-4 w-4" />
                               <span>{latestInsight.key_observations.increases.length} symptoms worsening</span>
                             </div>
                           )}
                           {latestInsight.key_observations.decreases.length > 0 && (
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-100 text-green-700 text-sm">
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 text-sm">
                               <TrendingDown className="h-4 w-4" />
                               <span>{latestInsight.key_observations.decreases.length} improvements</span>
                             </div>
@@ -285,7 +285,7 @@ export default function PatientDashboardClient({ userName }: PatientDashboardCli
                         </div>
                       </div>
                     </CardContent>
-                    <div className="absolute -right-16 -bottom-16 h-48 w-48 rounded-full bg-purple-500 opacity-[0.03]" />
+                    <div className="absolute -right-16 -bottom-16 h-48 w-48 rounded-full bg-purple-500 opacity-[0.03] dark:opacity-[0.05]" />
                   </Card>
                 )}
               </div>
@@ -341,12 +341,12 @@ function TrendsCharts({ checkIns }: { checkIns: DailyCheckIn[] }) {
 
   return (
     <div className="space-y-6">
-      <Card className="border-0 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
+      <Card className="border-0 shadow-lg dark:bg-card">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 rounded-t-xl">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle className="text-blue-900">Symptom Trends</CardTitle>
-              <CardDescription className="text-blue-700">Last {symptomDays} days of tracking</CardDescription>
+              <CardTitle className="text-blue-900 dark:text-blue-100">Symptom Trends</CardTitle>
+              <CardDescription className="text-blue-700 dark:text-blue-300">Last {symptomDays} days of tracking</CardDescription>
             </div>
             <div className="flex gap-2">
               {[7, 30, 90].map((d) => (
@@ -355,7 +355,7 @@ function TrendsCharts({ checkIns }: { checkIns: DailyCheckIn[] }) {
                   size="sm"
                   variant={symptomDays === d ? 'default' : 'outline'}
                   onClick={() => setSymptomDays(d as 7 | 30 | 90)}
-                  className={symptomDays === d ? 'bg-blue-600' : ''}
+                  className={symptomDays === d ? 'bg-blue-600 hover:bg-blue-700 dark:text-white' : 'bg-transparent border-blue-200 dark:border-blue-800 dark:text-blue-100 dark:hover:bg-blue-900/40'}
                 >
                   {d} Days
                 </Button>
@@ -381,12 +381,12 @@ function TrendsCharts({ checkIns }: { checkIns: DailyCheckIn[] }) {
         </CardContent>
       </Card>
 
-      <Card className="border-0 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-xl">
+      <Card className="border-0 shadow-lg dark:bg-card">
+        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/40 rounded-t-xl">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle className="text-green-900">Medication Adherence</CardTitle>
-              <CardDescription className="text-green-700">Your medication tracking history</CardDescription>
+              <CardTitle className="text-green-900 dark:text-green-100">Medication Adherence</CardTitle>
+              <CardDescription className="text-green-700 dark:text-green-300">Your medication tracking history</CardDescription>
             </div>
             <div className="flex gap-2">
               {[7, 30, 90].map((d) => (
@@ -395,7 +395,7 @@ function TrendsCharts({ checkIns }: { checkIns: DailyCheckIn[] }) {
                   size="sm"
                   variant={medicationDays === d ? 'default' : 'outline'}
                   onClick={() => setMedicationDays(d as 7 | 30 | 90)}
-                  className={medicationDays === d ? 'bg-green-600' : ''}
+                  className={medicationDays === d ? 'bg-green-600 hover:bg-green-700 dark:text-white' : 'bg-transparent border-green-200 dark:border-green-800 dark:text-green-100 dark:hover:bg-green-900/40'}
                 >
                   {d} Days
                 </Button>
@@ -461,10 +461,10 @@ function ReportsSection({ checkIns, userName }: { checkIns: DailyCheckIn[]; user
 
   return (
     <div className="space-y-6">
-      <Card className="border-0 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-t-xl">
-          <CardTitle className="text-slate-900">Generate Health Report</CardTitle>
-          <CardDescription className="text-slate-700">View your health summary for a specific period</CardDescription>
+      <Card className="border-0 shadow-lg dark:bg-card">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/50 dark:to-gray-900/50 rounded-t-xl">
+          <CardTitle className="text-slate-900 dark:text-slate-100">Generate Health Report</CardTitle>
+          <CardDescription className="text-slate-700 dark:text-slate-400">View your health summary for a specific period</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 pt-6">
           <div className="flex gap-2">
@@ -484,9 +484,9 @@ function ReportsSection({ checkIns, userName }: { checkIns: DailyCheckIn[]; user
           </div>
 
           {report ? (
-            <div className="p-6 bg-gradient-to-br from-slate-50 to-gray-100 rounded-xl space-y-6">
+            <div className="p-6 bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900/30 dark:to-gray-900/30 rounded-xl space-y-6">
               <div className="space-y-1">
-                <h3 className="font-semibold text-xl">{userName}</h3>
+                <h3 className="font-semibold text-xl dark:text-gray-100">{userName}</h3>
                 <p className="text-sm text-muted-foreground">
                   Report Period: Last {dateRange.replace('days', ' days')} • {report.totalCheckIns} check-ins
                 </p>
@@ -501,14 +501,14 @@ function ReportsSection({ checkIns, userName }: { checkIns: DailyCheckIn[]; user
                   { label: 'Avg Mood', value: report.avgMood, suffix: '/10' },
                   { label: 'Med Adherence', value: report.adherence, suffix: '%' },
                 ].map((stat) => (
-                  <div key={stat.label} className="bg-white rounded-lg p-4 shadow-sm">
+                  <div key={stat.label} className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm">
                     <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className="text-2xl font-bold">{stat.value}{stat.suffix}</p>
+                    <p className="text-2xl font-bold dark:text-gray-100">{stat.value}{stat.suffix}</p>
                   </div>
                 ))}
               </div>
 
-              <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600" size="lg" onClick={() => window.print()}>
+              <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white" size="lg" onClick={() => window.print()}>
                 Print Report
               </Button>
             </div>
