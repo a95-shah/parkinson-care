@@ -41,6 +41,7 @@ export default function PatientDashboardClient({ userName }: PatientDashboardCli
   const [refreshing, setRefreshing] = useState(false);
   const [showCheckInForm, setShowCheckInForm] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -95,13 +96,19 @@ export default function PatientDashboardClient({ userName }: PatientDashboardCli
   if (showCheckInForm) {
     return (
       <div className="flex min-h-screen bg-muted/40 font-sans">
-        <PatientSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <PatientSidebar 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
         <div className="flex-1 flex flex-col">
           <PatientHeader 
             userName={userName} 
             title="Daily Check-in" 
+            onMenuToggle={() => setSidebarOpen(true)}
           />
-          <main className="flex-1 p-6 overflow-y-auto">
+          <main className="flex-1 p-4 md:p-6 overflow-y-auto">
             <div className="mx-auto max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500">
               <DailyCheckInForm
                 onComplete={handleCheckInComplete}
@@ -117,7 +124,12 @@ export default function PatientDashboardClient({ userName }: PatientDashboardCli
 
   return (
     <div className="flex min-h-screen bg-muted/40 font-sans">
-      <PatientSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <PatientSidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
       
       <div className="flex-1 flex flex-col">
         <PatientHeader 
@@ -125,9 +137,10 @@ export default function PatientDashboardClient({ userName }: PatientDashboardCli
           title={getPageTitle()} 
           refreshing={refreshing}
           onRefresh={handleRefresh}
+          onMenuToggle={() => setSidebarOpen(true)}
         />
         
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           <div className="mx-auto max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-500">
             
             {/* Overview Tab */}
@@ -139,8 +152,8 @@ export default function PatientDashboardClient({ userName }: PatientDashboardCli
                     ? 'border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 dark:border-green-800/50 dark:from-green-950/20 dark:to-emerald-950/20' 
                     : 'border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 dark:border-amber-800/50 dark:from-amber-950/20 dark:to-orange-950/20'
                 }`}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
+                  <CardContent className="p-4 md:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex items-center gap-4">
                         <div className={`p-3 rounded-xl ${
                           todayCheckIn ? 'bg-green-100 dark:bg-green-900/30' : 'bg-amber-100 dark:bg-amber-900/30'
@@ -170,10 +183,10 @@ export default function PatientDashboardClient({ userName }: PatientDashboardCli
                       <Button 
                         onClick={() => setShowCheckInForm(true)} 
                         size="lg"
-                        className={todayCheckIn 
+                        className={`w-full sm:w-auto ${todayCheckIn 
                           ? 'bg-green-600 hover:bg-green-700' 
                           : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg'
-                        }
+                        }`}
                       >
                         {todayCheckIn ? 'Update Check-in' : 'Start Check-in'}
                       </Button>
@@ -184,7 +197,7 @@ export default function PatientDashboardClient({ userName }: PatientDashboardCli
 
                 {/* Stats Grid */}
                 {stats && (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
                     <PatientStatsCard
                       title="Tremor Level"
                       value={`${stats.avgTremor}/10`}

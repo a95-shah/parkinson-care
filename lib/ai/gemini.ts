@@ -1,8 +1,17 @@
 // lib/ai/gemini.ts
+'use server';
+
+import 'server-only';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { DailyCheckIn } from '@/lib/supabase/checkins';
 
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'AIzaSyAkcNUFE_Q-hwv55Kv3Bc20y121Z051ljY');
+// Initialize Gemini with server-side API key
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  console.error("GEMINI_API_KEY is not set in environment variables");
+}
+
+const genAI = new GoogleGenerativeAI(apiKey || '');
 
 export interface AIInsight {
   summary: string;
@@ -21,11 +30,15 @@ export async function generateParkinsonsInsight(
   checkIns: DailyCheckIn[],
   timeRange: 'today' | '7days' | '30days' | '90days'
 ): Promise<AIInsight> {
+  if (!apiKey) {
+    throw new Error('Gemini API key is not configured');
+  }
+
   if (!checkIns || checkIns.length === 0) {
     throw new Error('No check-in data available for analysis');
   }
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
   // Prepare the data summary for AI analysis
   const dataSummary = prepareDataForAI(checkIns);
@@ -94,33 +107,34 @@ Provide ONLY the JSON response, no additional text.`;
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
-    
+
     // Extract JSON from response
     const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error('Failed to parse AI response');
     }
-    
+
     const jsonText = jsonMatch[1] || jsonMatch[0];
     const insight: AIInsight = JSON.parse(jsonText);
-    
+
     return insight;
   } catch (error) {
     console.error('Gemini AI Error:', error);
-    throw new Error('Failed to generate AI insights. Please try again.');
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    throw new Error(`Failed to generate AI insights: ${errorMessage}`);
   }
 }
 
 function prepareDataForAI(checkIns: DailyCheckIn[]): string {
-  const sortedCheckIns = [...checkIns].sort((a, b) => 
+  const sortedCheckIns = [...checkIns].sort((a, b) =>
     new Date(a.check_in_date).getTime() - new Date(b.check_in_date).getTime()
   );
 
   let summary = '';
 
   sortedCheckIns.forEach((checkIn, index) => {
-    const date = new Date(checkIn.check_in_date).toLocaleDateString('en-US', { 
-      month: 'short', 
+    const date = new Date(checkIn.check_in_date).toLocaleDateString('en-US', {
+      month: 'short',
       day: 'numeric',
       year: 'numeric'
     });
@@ -132,7 +146,7 @@ function prepareDataForAI(checkIns: DailyCheckIn[]): string {
     summary += `- Sleep Quality: ${checkIn.sleep_score}/10\n`;
     summary += `- Mood Score: ${checkIn.mood_score}/10\n`;
     summary += `- Medication Taken: ${checkIn.medication_taken}\n`;
-    
+
     if (checkIn.notes) {
       summary += `- Patient Notes: ${checkIn.notes}\n`;
     }
@@ -144,7 +158,7 @@ function prepareDataForAI(checkIns: DailyCheckIn[]): string {
   const avgBalance = (sortedCheckIns.reduce((sum, c) => sum + c.balance_score, 0) / sortedCheckIns.length).toFixed(1);
   const avgSleep = (sortedCheckIns.reduce((sum, c) => sum + c.sleep_score, 0) / sortedCheckIns.length).toFixed(1);
   const avgMood = (sortedCheckIns.reduce((sum, c) => sum + c.mood_score, 0) / sortedCheckIns.length).toFixed(1);
-  
+
   const medicationTaken = sortedCheckIns.filter(c => c.medication_taken === 'yes').length;
   const medicationPartial = sortedCheckIns.filter(c => c.medication_taken === 'partially').length;
   const medicationMissed = sortedCheckIns.filter(c => c.medication_taken === 'missed').length;

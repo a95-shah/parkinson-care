@@ -1,8 +1,9 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { 
-  Bell, 
-  Search,
   RefreshCw,
+  Menu,
 } from "lucide-react";
 import { UserProfile } from "@/lib/supabase/config";
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -12,17 +13,31 @@ interface CaretakerHeaderProps {
   title: string;
   refreshing?: boolean;
   onRefresh?: () => void;
+  onMenuToggle?: () => void;
 }
 
-export function CaretakerHeader({ profile, title, refreshing, onRefresh }: CaretakerHeaderProps) {
+export function CaretakerHeader({ profile, title, refreshing, onRefresh, onMenuToggle }: CaretakerHeaderProps) {
   return (
-    <header className="flex h-16 items-center gap-4 border-b bg-background dark:bg-slate-950 dark:border-slate-800 px-6">
-      <h1 className="text-xl font-semibold text-green-900 dark:text-green-400">{title}</h1>
+    <header className="flex h-16 items-center gap-4 border-b bg-background dark:bg-slate-950 dark:border-slate-800 px-4 md:px-6">
+      {/* Mobile menu button */}
+      {onMenuToggle && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onMenuToggle}
+          className="md:hidden"
+        >
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle menu</span>
+        </Button>
+      )}
+      
+      <h1 className="text-lg md:text-xl font-semibold text-green-900 dark:text-green-400 truncate">{title}</h1>
       
       <div className="flex-1" />
       
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-1 md:gap-2">
           {onRefresh && (
             <Button
               variant="ghost"
@@ -38,14 +53,14 @@ export function CaretakerHeader({ profile, title, refreshing, onRefresh }: Caret
           <ThemeToggle />
         </div>
         
-        <div className="h-8 w-[1px] bg-border dark:bg-slate-800" />
+        <div className="h-8 w-[1px] bg-border dark:bg-slate-800 hidden sm:block" />
         
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col items-end">
+        <div className="flex items-center gap-2 md:gap-4">
+          <div className="hidden sm:flex flex-col items-end">
             <span className="text-sm font-medium dark:text-white">{profile.full_name}</span>
             <span className="text-xs text-muted-foreground capitalize">Caretaker</span>
           </div>
-          <div className="h-9 w-9 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-700 dark:text-green-400 font-bold border border-green-200 dark:border-green-800/50">
+          <div className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-700 dark:text-green-400 font-bold border border-green-200 dark:border-green-800/50 text-sm">
             {profile.full_name[0]?.toUpperCase()}
           </div>
         </div>

@@ -23,6 +23,7 @@ export default function AdminDashboardClient({ profile }: AdminDashboardClientPr
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     loadStats();
@@ -69,7 +70,12 @@ export default function AdminDashboardClient({ profile }: AdminDashboardClientPr
 
   return (
     <div className="flex min-h-screen bg-muted/40 font-sans">
-      <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <AdminSidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
       
       <div className="flex-1 flex flex-col">
         <AdminHeader 
@@ -77,14 +83,15 @@ export default function AdminDashboardClient({ profile }: AdminDashboardClientPr
           title={getPageTitle()} 
           refreshing={refreshing}
           onRefresh={handleRefresh}
+          onMenuToggle={() => setSidebarOpen(true)}
         />
         
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           <div className="mx-auto max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-500">
             {activeTab === 'overview' && (
               <div className="space-y-8">
                 {/* Stats Grid */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
                   <StatsCard 
                     title="Total Patients"
                     value={stats?.totalPatients || 0}

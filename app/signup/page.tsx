@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signUp, signInWithGoogle } from '@/lib/supabase/auth';
 import { UserRole } from '@/lib/supabase/config';
-import { Loader2, Mail, Lock, User, Phone, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Loader2, Mail, Lock, User, Phone, CheckCircle2, ArrowRight, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function SignupPage() {
@@ -31,8 +31,22 @@ export default function SignupPage() {
     if (!signupData.fullName.trim()) newErrors.fullName = 'Full name is required';
     if (!signupData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(signupData.email)) newErrors.email = 'Email is invalid';
-    if (!signupData.password) newErrors.password = 'Password is required';
-    else if (signupData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+    
+    if (!signupData.password) {
+      newErrors.password = 'Password is required';
+    } else {
+      const requirements = [];
+      if (signupData.password.length < 8) requirements.push('at least 8 characters');
+      if (!/[a-z]/.test(signupData.password)) requirements.push('a lowercase letter');
+      if (!/[A-Z]/.test(signupData.password)) requirements.push('an uppercase letter');
+      if (!/[0-9]/.test(signupData.password)) requirements.push('a number');
+      if (!/[!@#$%^&*(),.?":{}|<>]/.test(signupData.password)) requirements.push('a special character');
+      
+      if (requirements.length > 0) {
+        newErrors.password = `Password must include ${requirements.join(', ')}`;
+      }
+    }
+
     if (signupData.password !== signupData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
 
     setErrors(newErrors);
@@ -100,6 +114,16 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-white">
+      {/* Back Button */}
+      <div className="absolute top-6 left-6 z-20 animate-in fade-in slide-in-from-left-4 duration-700">
+        <Link href="/">
+          <Button variant="ghost" size="sm" className="gap-2 text-slate-600 hover:text-slate-900 bg-white/50 hover:bg-white/80 backdrop-blur-sm shadow-sm hover:shadow transition-all rounded-full px-4">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Button>
+        </Link>
+      </div>
+
       {/* Animated Background Elements */}
       <div className="absolute inset-0 z-0">
          <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-teal-200/40 rounded-full blur-[100px] animate-blob" />
@@ -126,7 +150,7 @@ export default function SignupPage() {
       `}</style>
 
       {/* Main Container */}
-       <div className="relative z-10 w-full max-w-\[1100px] grid lg:grid-cols-2 bg-white/60 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/20 overflow-hidden m-4 animate-in fade-in zoom-in-95 duration-500">
+       <div className="relative z-10 w-full max-w-[1100px] grid lg:grid-cols-2 bg-white/60 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/20 overflow-hidden m-4 animate-in fade-in zoom-in-95 duration-500 max-h-[95vh] md:max-h-none">
         
         {/* Left Side - Visual */}
         <div className="hidden lg:flex flex-col justify-center p-12 bg-linear-to-br from-teal-600 to-emerald-600 text-white relative">
@@ -157,7 +181,7 @@ export default function SignupPage() {
         </div>
 
         {/* Right Side - Signup Form */}
-        <div className="p-8 lg:p-12 flex flex-col justify-center max-h-[90vh] overflow-y-auto">
+        <div className="p-6 md:p-8 lg:p-12 flex flex-col justify-center max-h-[90vh] overflow-y-auto">
           <div className="mb-6 text-center lg:text-left">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
              <p className="text-gray-500">
@@ -249,7 +273,12 @@ export default function SignupPage() {
                     className="pl-10 h-10 bg-gray-50/50 border-gray-200 focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 rounded-xl transition-all"
                   />
                 </div>
-                 {errors.password && <p className="text-xs text-red-500">{errors.password}</p>}
+                {!errors.password && (
+                  <p className="text-[10px] text-gray-400 mt-1 px-1">
+                    Requirements: 8+ chars, Uppercase, Lowercase, Number, Special Character
+                  </p>
+                )}
+                {errors.password && <p className="text-xs text-red-500">{errors.password}</p>}
               </div>
               
               <div className="space-y-1 group">

@@ -57,6 +57,20 @@ export default function AssignmentsManagement({ onUpdate }: AssignmentsManagemen
       return;
     }
 
+    // Check for duplicate assignment
+    const existingAssignment = assignments.find(
+      (a) => a.patient_id === selectedPatient && a.caretaker_id === selectedCaretaker
+    );
+
+    if (existingAssignment) {
+      if (existingAssignment.status === 'active') {
+        setMessage({ type: 'error', text: 'This patient is already currently assigned to this caretaker.' });
+      } else {
+        setMessage({ type: 'error', text: 'An inactive assignment already exists for this pair. Please reactivate it below instead of creating a new one.' });
+      }
+      return;
+    }
+
     const { success, error } = await createAssignment(selectedPatient, selectedCaretaker, notes);
 
     if (success) {

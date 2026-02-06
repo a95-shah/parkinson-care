@@ -27,6 +27,7 @@ export default function CaretakerDashboardClient({ profile }: CaretakerDashboard
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     loadAssignments();
@@ -92,10 +93,15 @@ export default function CaretakerDashboardClient({ profile }: CaretakerDashboard
 
   return (
     <div className="flex min-h-screen bg-muted/40 dark:bg-background font-sans">
-      <CaretakerSidebar activeTab={activeTab} setActiveTab={(tab) => {
-        setActiveTab(tab);
-        setSelectedPatient(null); // Reset selection when changing tabs via sidebar
-      }} />
+      <CaretakerSidebar 
+        activeTab={activeTab} 
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          setSelectedPatient(null);
+        }}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
       
       <div className="flex-1 flex flex-col">
         <CaretakerHeader 
@@ -103,16 +109,17 @@ export default function CaretakerDashboardClient({ profile }: CaretakerDashboard
           title={getPageTitle()} 
           refreshing={refreshing}
           onRefresh={handleRefresh}
+          onMenuToggle={() => setSidebarOpen(true)}
         />
 
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           <div className="mx-auto max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-500">
             
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
                 {/* Stats Cards */}
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                   <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 dark:border dark:border-green-800/30">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium text-green-900 dark:text-green-300">
@@ -169,7 +176,7 @@ export default function CaretakerDashboardClient({ profile }: CaretakerDashboard
                     </CardContent>
                   </Card>
                 ) : (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {assignments.map((assignment) => (
                       <Card 
                         key={assignment.id} 

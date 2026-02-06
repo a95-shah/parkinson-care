@@ -35,9 +35,9 @@ export default async function Home() {
     <div className="min-h-screen bg-linear-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-1/2 -left-40 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute bottom-20 right-1/4 w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-500" />
+        <div className="absolute -top-20 -right-20 md:-top-40 md:-right-40 w-40 h-40 md:w-80 md:h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/2 -left-20 md:-left-40 w-48 h-48 md:w-96 md:h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute bottom-10 right-1/4 w-36 h-36 md:w-72 md:h-72 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-500" />
       </div>
 
       {/* Navigation */}
@@ -79,7 +79,7 @@ export default async function Home() {
       </nav>
 
       {/* Hero Section */}
-      <main className="relative z-10 flex flex-col items-center justify-center px-6 pt-20 pb-32 lg:pt-32">
+      <main className="relative z-10 flex flex-col items-center justify-center px-4 md:px-6 pt-12 pb-20 md:pt-20 md:pb-32 lg:pt-32">
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 text-sm font-medium text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 rounded-full">
